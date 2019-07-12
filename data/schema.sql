@@ -1,11 +1,7 @@
 DROP TABLE IF EXISTS weathers;
 DROP TABLE IF EXISTS locations;
 DROP TABLE IF EXISTS events;
-
--- this.search_query = locationName;
--- this.formatted_query = result.body.results[0].formatted_address;
--- this.latitude = result.body.results[0].geometry.location.lat;
--- this.longitude = result.body.results[0].geometry.location.lng;
+DROP TABLE IF EXISTS movies;
 
 CREATE TABLE locations (
   id SERIAL PRIMARY KEY,
@@ -28,6 +24,21 @@ CREATE TABLE weathers (
     formatted_query VARCHAR(255),
     event_date VARCHAR(255),
     name VARCHAR(255),
+    location_id INTEGER NOT NULL,
     link TEXT,
-    summary TEXT
+    summary TEXT,
+    FOREIGN KEY (location_id) REFERENCES locations (id)
+);
+
+CREATE TABLE movies (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(255),
+  overview TEXT,
+  average_votes FLOAT,
+  total_votes INTEGER,
+  image_url TEXT,
+  popularity FLOAT,
+  released_on VARCHAR(255),
+  location_id INTEGER NOT NULL,
+  FOREIGN KEY (location_id) REFERENCES locations (id)
 );
