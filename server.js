@@ -240,34 +240,18 @@ function getMovies(request, response) {
 
     location: request.query.data.id,
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 8936bbdf47da3e6d6434dba7d3ae49fd7dc10798
     cacheHit: function (result) {
       response.send(result.rows);
     },
 
     cacheMiss: function () {
       const locationName = request.query.data.search_query;
-<<<<<<< HEAD
-      const url = `https://api.themoviedb.org/3/movie/550?api_key=${process.env.MOVIE_API_KEY}&query=${locationName}`;
-
-      superagent.get(url)
-        .then(result => {
-          const movieDatas = result.body;
-          console.log('testing result', movieDatas);
-          const movies = Object.entries(result).map(movieData => {
-            const movie = new Movies(movieDatas);
-=======
       const url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&query=${locationName}`;
 
       superagent.get(url)
         .then(result => {
           const movies = result.body.results.map(movieData => {
             const movie = new Movies(movieData);
->>>>>>> 8936bbdf47da3e6d6434dba7d3ae49fd7dc10798
             movie.save(request.query.data.id);
             return movie;
           });
