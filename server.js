@@ -24,6 +24,7 @@ client.on('error', err => console.error(err));
 app.get('/location', getLocation);
 app.get('/weather', getWeather);
 app.get('/events', getEvents);
+app.get('/movies', getMovies)
 
 // Make sure the server is listening for requests
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));
@@ -126,6 +127,30 @@ Event.prototype = {
   }
 };
 
+function Movies(movie) {
+  this.tableName = 'movies';
+  this.title = movie.original_title;
+  this.overview = movie.overview;
+  this.average_votes = movie.vote_average;
+  this.total_votes = movie.vote_count;
+  this.image_url = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
+  this.popularity = movie.popularity;
+  this.released_on = movie.release_date;
+}
+
+Movies.tableName = 'movies';
+Movies.lookup = lookup;
+
+Movies.prototype = {
+  save: function (location_id) {
+    const SQL = `INSERT INTO ${this.tableName} (title, overview, average_votes, total_votes, image_url, popularity, released_on, location_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);`;
+
+    const values = [this.title, this.overview, this.average_votes, this.total_votes, this.image_url, this.popularity, this.released_on, location_id];
+
+    client.query(SQL, values)
+  }
+}
+
 function getLocation(request, response) {
   Location.lookupLocation({
     tableName: Location.tableName,
@@ -203,4 +228,35 @@ function getEvents(request, response) {
         .catch(error => handleError(error, response));
     }
   });
+}
+
+function getMovies(request, response) {
+  Movies.lookup({
+    tableName: Movies.tableName,
+
+    location: request.query.data.id,
+
+    cacheHit: function (result) {
+      response.send(result.rows);
+    },
+
+    cacheMiss: function () {
+      const locationName = request.query.data.search_query;
+      const url = `https://api.themoviedb.org/3/movie/550?api_key=${process.env.MOVIE_API_KEY}&query=${locationName}`;
+
+      superagent.get(url)
+        .then(result => {
+          const movieDatas = result.body;
+          console.log('testing result', movieDatas);
+          const movies = Object.entries(result).map(movieData => {
+            const movie = new Movies(movieDatas);
+            movie.save(request.query.data.id);
+            return movie;
+          });
+
+          response.send(movies);
+        })
+        .catch(error => handleError(error, response));
+    }
+  })
 }
