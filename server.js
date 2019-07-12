@@ -24,11 +24,7 @@ client.on('error', err => console.error(err));
 app.get('/location', getLocation);
 app.get('/weather', getWeather);
 app.get('/events', getEvents);
-<<<<<<< HEAD
-app.get('/movies', getMovies);
-=======
 app.get('/movies', getMovies)
->>>>>>> 8936bbdf47da3e6d6434dba7d3ae49fd7dc10798
 
 // Make sure the server is listening for requests
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));
