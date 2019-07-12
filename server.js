@@ -242,14 +242,12 @@ function getMovies(request, response) {
 
     cacheMiss: function () {
       const locationName = request.query.data.search_query;
-      const url = `https://api.themoviedb.org/3/movie/550?api_key=${process.env.MOVIE_API_KEY}&query=${locationName}`;
+      const url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&query=${locationName}`;
 
       superagent.get(url)
         .then(result => {
-          const movieDatas = result.body;
-          console.log('testing result', movieDatas);
-          const movies = Object.entries(result).map(movieData => {
-            const movie = new Movies(movieDatas);
+          const movies = result.body.results.map(movieData => {
+            const movie = new Movies(movieData);
             movie.save(request.query.data.id);
             return movie;
           });
