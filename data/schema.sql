@@ -13,6 +13,7 @@ CREATE TABLE locations (
 
 CREATE TABLE weathers ( 
     id SERIAL PRIMARY KEY, 
+    create_at DATE,
     forecast VARCHAR(255), 
     time VARCHAR(255), 
     location_id INTEGER NOT NULL,
@@ -40,5 +41,6 @@ CREATE TABLE movies (
   popularity FLOAT,
   released_on VARCHAR(255),
   location_id INTEGER NOT NULL,
+  created_at DATE,
   FOREIGN KEY (location_id) REFERENCES locations (id)
 );

@@ -93,6 +93,7 @@ function Weather(day) {
   this.tableName = 'weathers';
   this.forecast = day.summary;
   this.time = new Date(day.time * 1000).toString().slice(0, 15);
+  this.date = Date.now();
 }
 
 Weather.tableName = 'weathers';
@@ -133,7 +134,7 @@ function Movies(movie) {
   this.overview = movie.overview;
   this.average_votes = movie.vote_average;
   this.total_votes = movie.vote_count;
-  this.image_url = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
+  this.image_url = `https://image.tmdb.org/t/p/w500${movie.poster_path}`|| 'Image';
   this.popularity = movie.popularity;
   this.released_on = movie.release_date;
 }
@@ -237,6 +238,7 @@ function getMovies(request, response) {
     location: request.query.data.id,
 
     cacheHit: function (result) {
+
       response.send(result.rows);
     },
 
