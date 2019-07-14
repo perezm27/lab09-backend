@@ -11,9 +11,10 @@ require('dotenv').config();
 
 // Application Setup
 const app = express();
+app.use(cors());
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+
 
 // Database Setup
 const client = new pg.Client(process.env.DATABASE_URL);
