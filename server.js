@@ -1,5 +1,5 @@
-'use strict';
 
+'use strict';
 // Application Dependencies
 const express = require('express');
 const superagent = require('superagent');
@@ -26,6 +26,7 @@ app.get('/location', getLocation);
 app.get('/weather', getWeather);
 app.get('/events', getEvents);
 app.get('/movies', getMovies)
+// app.get('/yelp', getYelp);
 
 // Make sure the server is listening for requests
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));
@@ -53,7 +54,7 @@ function lookup(options) {
     .catch(error => handleError(error));
 }
 
-// Models
+// Locations Constructor
 function Location(query, res) {
   this.tableName = 'locations';
   this.search_query = query;
@@ -90,6 +91,7 @@ Location.prototype = {
   }
 };
 
+//Weather Constructor
 function Weather(day) {
   this.tableName = 'weathers';
   this.forecast = day.summary;
@@ -109,6 +111,7 @@ Weather.prototype = {
   }
 };
 
+//Events Constructor
 function Event(event) {
   this.tableName = 'events';
   this.link = event.url;
@@ -129,6 +132,7 @@ Event.prototype = {
   }
 };
 
+//Movies Constructor
 function Movies(movie) {
   this.tableName = 'movies';
   this.title = movie.original_title;
@@ -153,6 +157,17 @@ Movies.prototype = {
   }
 }
 
+//Yelp Constructor
+// function Yelps(yelp){
+//   this.tableName = 'yelp';
+//   this.name = yelp.name;
+//   this.image_url = yelp.image_url;
+//   this.price = yelp.price;
+//   this.rating = yelp.raiting;
+//   this.url = yelp.url;
+// }
+
+//Function Calls
 function getLocation(request, response) {
   Location.lookupLocation({
     tableName: Location.tableName,
@@ -261,3 +276,35 @@ function getMovies(request, response) {
     }
   })
 }
+
+// function getYelp(request, response) {
+//   Yelps.lookup({
+//     tableName: Yelps.tableName,
+
+//     location: request.query.data.id,
+
+//     cacheHit: function (result) {
+
+//       response.send(result.rows);
+//     },
+
+//     cacheMiss: function () {
+//       const locationName = request.query.data;
+//       const url = `https://api.yelp.com/v3/businesses/search?latitude=${locationName.latitude}&longitude=${locationName.longitude}`
+
+//       TODO: //Modify super agent yelp data to include Yelp Auth.
+
+//       superagent.get(url)
+//         .then(result => {
+//           const food = result.body.results.map(yelpData => {
+//             const yelp = new Yelps(yelpData);
+//             yelp.save(request.query.data.id);
+//             return yelp;
+//           });
+
+//           response.send(food);
+//         })
+//         .catch(error => handleError(error, response));
+//     }
+//   })
+// }
