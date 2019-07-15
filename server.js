@@ -24,7 +24,8 @@ client.on('error', err => console.error(err));
 app.get('/location', getLocation);
 app.get('/weather', getWeather);
 app.get('/events', getEvents);
-app.get('/movies', getMovies)
+app.get('/movies', getMovies);
+app.get('/yelp', getYelp);
 
 // Make sure the server is listening for requests
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));
@@ -149,6 +150,15 @@ Movies.prototype = {
 
     client.query(SQL, values)
   }
+}
+
+function Yelps(yelp){
+  this.tableName = 'yelp';
+  this.name
+  this.image_url
+  this.price
+  this.rating
+  this.url
 }
 
 function getLocation(request, response) {
