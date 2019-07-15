@@ -1,3 +1,4 @@
+
 'use strict';
 
 // Application Dependencies
@@ -11,9 +12,10 @@ require('dotenv').config();
 
 // Application Setup
 const app = express();
+app.use(cors());
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+
 
 // Database Setup
 const client = new pg.Client(process.env.DATABASE_URL);
@@ -24,7 +26,7 @@ client.on('error', err => console.error(err));
 app.get('/location', getLocation);
 app.get('/weather', getWeather);
 app.get('/events', getEvents);
-app.get('/movies', getMovies);
+app.get('/movies', getMovies)
 app.get('/yelp', getYelp);
 
 // Make sure the server is listening for requests
@@ -53,7 +55,7 @@ function lookup(options) {
     .catch(error => handleError(error));
 }
 
-// Models
+// Locations Constructor
 function Location(query, res) {
   this.tableName = 'locations';
   this.search_query = query;
@@ -90,10 +92,12 @@ Location.prototype = {
   }
 };
 
+//Weather Constructor
 function Weather(day) {
   this.tableName = 'weathers';
   this.forecast = day.summary;
   this.time = new Date(day.time * 1000).toString().slice(0, 15);
+  this.date = Date.now();
 }
 
 Weather.tableName = 'weathers';
@@ -108,6 +112,7 @@ Weather.prototype = {
   }
 };
 
+//Events Constructor
 function Event(event) {
   this.tableName = 'events';
   this.link = event.url;
@@ -128,13 +133,14 @@ Event.prototype = {
   }
 };
 
+//Movies Constructor
 function Movies(movie) {
   this.tableName = 'movies';
   this.title = movie.original_title;
   this.overview = movie.overview;
   this.average_votes = movie.vote_average;
   this.total_votes = movie.vote_count;
-  this.image_url = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
+  this.image_url = `https://image.tmdb.org/t/p/w500${movie.poster_path}`|| 'Image';
   this.popularity = movie.popularity;
   this.released_on = movie.release_date;
 }
@@ -152,15 +158,17 @@ Movies.prototype = {
   }
 }
 
+//Yelp Constructor
 function Yelps(yelp){
   this.tableName = 'yelp';
-  this.name
-  this.image_url
-  this.price
-  this.rating
-  this.url
+  this.name = yelp.name;
+  this.image_url = yelp.image_url;
+  this.price = yelp.price;
+  this.rating = yelp.raiting;
+  this.url = yelp.url;
 }
 
+//Function Calls
 function getLocation(request, response) {
   Location.lookupLocation({
     tableName: Location.tableName,
@@ -247,6 +255,7 @@ function getMovies(request, response) {
     location: request.query.data.id,
 
     cacheHit: function (result) {
+
       response.send(result.rows);
     },
 
@@ -264,6 +273,38 @@ function getMovies(request, response) {
 
           response.send(movies);
         })
+        .catch(error => handleError(error, response));
+    }
+  })
+}
+
+function getYelp(request, response) {
+  Yelps.lookup({
+    tableName: Yelps.tableName,
+
+    location: request.query.data.id,
+
+    cacheHit: function (result) {
+
+      response.send(result.rows);
+    },
+
+    cacheMiss: function () {
+      const locationName = request.query.data;
+      const url = `https://api.yelp.com/v3/businesses/search?latitude=${locationName.latitude}&longitude=${locationName.longitude}`
+
+      TODO: //Modify super agent yelp data to include Yelp Auth.
+      
+      // superagent.get(url)
+      //   .then(result => {
+      //     const food = result.body.results.map(yelpData => {
+      //       const yelp = new Yelps(yelpData);
+      //       yelp.save(request.query.data.id);
+      //       return yelp;
+      //     });
+
+      //     response.send(food);
+      //   })
         .catch(error => handleError(error, response));
     }
   })
