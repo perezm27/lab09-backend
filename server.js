@@ -26,7 +26,7 @@ app.get('/location', getLocation);
 app.get('/weather', getWeather);
 app.get('/events', getEvents);
 app.get('/movies', getMovies)
-// app.get('/yelp', getYelp);
+app.get('/yelp', getYelp);
 
 // Make sure the server is listening for requests
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));
@@ -158,14 +158,28 @@ Movies.prototype = {
 }
 
 //Yelp Constructor
-// function Yelps(yelp){
-//   this.tableName = 'yelp';
-//   this.name = yelp.name;
-//   this.image_url = yelp.image_url;
-//   this.price = yelp.price;
-//   this.rating = yelp.raiting;
-//   this.url = yelp.url;
-// }
+function Yelps(yelp){
+  this.tableName = 'yelp';
+  this.name = yelp.name;
+  this.image_url = yelp.image_url;
+  this.price = yelp.price;
+  this.rating = yelp.rating;
+  this.url = yelp.url;
+}
+
+Yelps.tableName ='yelp';
+Yelps.lookup = lookup;
+
+Yelps.prototype = {
+  save: function(location_id){
+    const SQL = `INSERT INTO ${this.tableName}(name, image_url, price, rating, url, location_id) VALUES ($1, $2, $3, $4, $5, $6)`;
+
+    const values = [this.name, this.image_url, this.price, this.rating, this.url, location_id];
+
+    client.query(SQL, values);
+
+  }
+}
 
 //Function Calls
 function getLocation(request, response) {
@@ -277,34 +291,33 @@ function getMovies(request, response) {
   })
 }
 
-// function getYelp(request, response) {
-//   Yelps.lookup({
-//     tableName: Yelps.tableName,
+function getYelp(request, response) {
+  Yelps.lookup({
+    tableName: Yelps.tableName,
 
-//     location: request.query.data.id,
+    location: request.query.data.id,
 
-//     cacheHit: function (result) {
+    cacheHit: function (result) {
 
-//       response.send(result.rows);
-//     },
+      response.send(result.rows);
+    },
 
-//     cacheMiss: function () {
-//       const locationName = request.query.data;
-//       const url = `https://api.yelp.com/v3/businesses/search?latitude=${locationName.latitude}&longitude=${locationName.longitude}`
+    cacheMiss: function () {
+      const locationName = request.query.data;
+      const yelpAuth = `Bearer ${process.env.YELP_API_KEY}`;
+      const url = `https://api.yelp.com/v3/businesses/search?latitude=${locationName.latitude}&longitude=${locationName.longitude}`
 
-//       TODO: //Modify super agent yelp data to include Yelp Auth.
+      superagent.get(url).set('Authorization', yelpAuth)
+        .then(result => {
+          const food = result.body.businesses.map(yelpData => {
+            const yelp = new Yelps(yelpData);
+            yelp.save(request.query.data.id);
+            return yelp;
+          });
 
-//       superagent.get(url)
-//         .then(result => {
-//           const food = result.body.results.map(yelpData => {
-//             const yelp = new Yelps(yelpData);
-//             yelp.save(request.query.data.id);
-//             return yelp;
-//           });
-
-//           response.send(food);
-//         })
-//         .catch(error => handleError(error, response));
-//     }
-//   })
-// }
+          response.send(food);
+        })
+        .catch(error => handleError(error, response));
+    }
+  })
+}
