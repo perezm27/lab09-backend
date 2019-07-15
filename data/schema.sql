@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS weathers;
 DROP TABLE IF EXISTS events;
 DROP TABLE IF EXISTS movies;
+DROP TABLE IF EXISTS yelp;
 DROP TABLE locations;
 
 CREATE TABLE locations (
@@ -41,5 +42,16 @@ CREATE TABLE movies (
   released_on VARCHAR(255),
   location_id INTEGER NOT NULL,
   created_at DATE,
+  FOREIGN KEY (location_id) REFERENCES locations (id)
+);
+
+CREATE TABLE yelp (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255),
+  image_url TEXT,
+  price TEXT,
+  rating FLOAT,
+  location_id INTEGER NOT NULL,
+  url TEXT,
   FOREIGN KEY (location_id) REFERENCES locations (id)
 );
